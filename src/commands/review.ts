@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { createSpinner } from "../utils/spinner.js";
 import { logger } from "../utils/logger.js";
 import { reviewFile } from "../services/reviewService.js";
-import { formatStructuredReview, parseNumberedHeadings } from "../utils/structuredReview.js";
+import { formatAiReview } from "../utils/formatter.js";
 import { ReviewError } from "../services/reviewErrors.js";
 
 export function registerReviewCommand(program: Command): void {
@@ -20,7 +20,6 @@ export function registerReviewCommand(program: Command): void {
         const result = await reviewFile(file, opts.maxChars === undefined ? {} : { maxChars: opts.maxChars });
         spinner.succeed(chalk.green("Review complete"));
 
-        const parsed = parseNumberedHeadings(result.aiRaw);
         const headerBits = [
           chalk.bold("File:"),
           result.filePath,
@@ -28,7 +27,7 @@ export function registerReviewCommand(program: Command): void {
         ];
         console.log(headerBits.join(" "));
         console.log("");
-        console.log(formatStructuredReview(parsed));
+        console.log(formatAiReview(result.aiRaw));
       } catch (err: unknown) {
         spinner.fail(chalk.red("Review failed"));
         if (err instanceof ReviewError) {
