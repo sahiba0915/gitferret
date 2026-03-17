@@ -5,13 +5,18 @@ import { logger } from "../utils/logger.js";
 import { reviewFile } from "../services/reviewService.js";
 import { formatAiReview } from "../utils/formatter.js";
 import { ReviewError } from "../services/reviewErrors.js";
+import { parsePositiveIntOption } from "../utils/cli.js";
 
 export function registerReviewCommand(program: Command): void {
   program
     .command("review")
     .argument("<file>", "File path to review")
-    .option("--max-chars <n>", "Max characters to send to the AI (default: 12000)", (v) => Number(v))
+    .option("--max-chars <n>", "Max characters to send to the AI (default: 12000)", parsePositiveIntOption)
     .description("Review a local file with AI and print a structured report.")
+    .addHelpText(
+      "after",
+      "\nExamples:\n  prlens review README.md\n  prlens review src/index.ts --max-chars 8000\n"
+    )
     .action(async (file: string, opts: { maxChars?: number }) => {
       logger.info(`Review requested for ${chalk.bold(file)}`);
       const spinner = createSpinner(`Reviewing ${file}...`).start();

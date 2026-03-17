@@ -4,14 +4,19 @@ import { createSpinner } from "../utils/spinner.js";
 import { logger } from "../utils/logger.js";
 import { reviewPullRequest, PrReviewError } from "../services/prReviewService.js";
 import { formatAiReview } from "../utils/formatter.js";
+import { parsePositiveIntOption, parseRepoRefArg } from "../utils/cli.js";
 
 export function registerPrCommand(program: Command): void {
   program
     .command("pr")
     .argument("<prNumber>", "Pull request number to inspect")
-    .requiredOption("--repo <owner/repo>", "GitHub repository (e.g. vercel/next.js)")
-    .option("--max-chars <n>", "Max characters of minimized diff to send (default: 12000)", (v) => Number(v))
+    .requiredOption("--repo <owner/repo>", "GitHub repository (e.g. vercel/next.js)", parseRepoRefArg)
+    .option("--max-chars <n>", "Max characters of minimized diff to send (default: 12000)", parsePositiveIntOption)
     .description("Fetch PR diff from GitHub, extract only changed lines, and generate a structured AI review.")
+    .addHelpText(
+      "after",
+      "\nExamples:\n  prlens pr 123 --repo vercel/next.js\n  prlens pr 123 --repo owner/repo --max-chars 8000\n\nTips:\n  - Set `PRLENS_GITHUB_TOKEN` to avoid rate limits.\n"
+    )
     .action(async (prNumberRaw: string, opts: { repo: string; maxChars?: number }) => {
       logger.info(
         `PR review requested for ${chalk.bold(opts.repo)}#${chalk.bold(prNumberRaw)}`
