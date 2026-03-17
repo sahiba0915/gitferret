@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { createSpinner } from "../utils/spinner.js";
 import { logger } from "../utils/logger.js";
 import { reviewPullRequest, PrReviewError } from "../services/prReviewService.js";
-import { formatStructuredReview, parseNumberedHeadings } from "../utils/structuredReview.js";
+import { formatAiReview } from "../utils/formatter.js";
 
 export function registerPrCommand(program: Command): void {
   program
@@ -41,8 +41,7 @@ export function registerPrCommand(program: Command): void {
         }
         console.log("");
 
-        const parsed = parseNumberedHeadings(result.aiRaw);
-        console.log(formatStructuredReview(parsed));
+        console.log(formatAiReview(result.aiRaw));
       } catch (err: unknown) {
         spinner.fail(chalk.red("PR review failed"));
         if (err instanceof PrReviewError) {
