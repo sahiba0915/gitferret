@@ -17,16 +17,25 @@ async function fileExists(p: string): Promise<boolean> {
 
 function hookScript(): string {
   // A Node-based hook is the most portable approach across macOS/Linux/Windows git-bash.
-  // Git for Windows runs hooks via sh if they are executable; Node shebang works in most setups,
-  // but we also include a fallback `node` invocation in the script itself.
+  // In "dev-only" usage (running from a cloned repo), we prefer `node ./dist/index.js changes`.
+  // If `dist/index.js` doesn't exist, we fall back to `npx prlens changes` for published installs.
   return [
     "#!/usr/bin/env node",
     "/* PRLens pre-push hook (generated). */",
     "import { spawnSync } from 'node:child_process';",
+    "import { existsSync } from 'node:fs';",
     "",
-    "const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';",
-    "const args = ['-y', 'prlens', 'changes'];",
-    "const r = spawnSync(cmd, args, { stdio: 'inherit' });",
+    "const localEntry = './dist/index.js';",
+    "const useLocal = existsSync(localEntry);",
+    "",
+    "let r;",
+    "if (useLocal) {",
+    "  r = spawnSync(process.execPath, [localEntry, 'changes'], { stdio: 'inherit' });",
+    "} else {",
+    "  const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';",
+    "  const args = ['-y', 'prlens', 'changes'];",
+    "  r = spawnSync(cmd, args, { stdio: 'inherit' });",
+    "}",
     "process.exitCode = r.status ?? 1;",
     ""
   ].join("\n");
@@ -39,7 +48,7 @@ export function registerInstallCommand(program: Command): void {
     .option("--force", "Overwrite an existing pre-push hook")
     .addHelpText(
       "after",
-      "\nExamples:\n  prlens install\n  prlens install --force\n\nWhat it does:\n  - Writes `.git/hooks/pre-push` to run `npx -y prlens changes`.\n  - This helps catch issues before pushes.\n"
+      "\nExamples:\n  prlens install\n  prlens install --force\n\nWhat it does:\n  - Writes `.git/hooks/pre-push` to run `node ./dist/index.js changes` when available.\n  - Falls back to `npx -y prlens changes` if `dist/` isn't present.\n"
     )
     .action(async (opts: { force?: boolean }) => {
       const spinner = createSpinner("Installing git pre-push hook...").start();

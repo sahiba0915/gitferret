@@ -11,58 +11,39 @@ It minimizes diffs (keeps only changed lines) to reduce tokens and keep reviews 
 
 ## Install
 
-### Use without installing
+PRLens is not published to npm yet in this repo. To use it, clone the repo and run it locally.
 
 ```bash
-npx -y prlens --help
+npm install
+npm run build
+node dist/index.js --help
 ```
 
-### Global install
+Optional (for a `prlens` command in your shell while developing):
 
 ```bash
-npm i -g prlens
+npm link
 prlens --help
-```
-
-### Local (project) install
-
-```bash
-npm i -D prlens
-npx prlens --help
 ```
 
 ## Quick start
 
 ```bash
-prlens review README.md
-prlens pr 123 --repo vercel/next.js
-prlens changes
-prlens ask "Where is config loaded?"
-prlens version
+node dist/index.js review README.md
+node dist/index.js pr 123 --repo vercel/next.js
+node dist/index.js changes
+node dist/index.js ask "Where is config loaded?"
+node dist/index.js version
 ```
 
 ## How to use
 
-### Install (pick one)
-
-#### No install (recommended to try it)
+### Install (dev / from this repo)
 
 ```bash
-npx -y prlens --help
-```
-
-#### Global
-
-```bash
-npm i -g prlens
-prlens --help
-```
-
-#### Project-local
-
-```bash
-npm i -D prlens
-npx prlens --help
+npm install
+npm run build
+node dist/index.js --help
 ```
 
 ### Set env (required for AI)
@@ -87,31 +68,31 @@ export PRLENS_GITHUB_TOKEN=...
 #### Review a file
 
 ```bash
-prlens review README.md
+node dist/index.js review README.md
 ```
 
 #### Review a GitHub PR
 
 ```bash
-prlens pr 123 --repo vercel/next.js
+node dist/index.js pr 123 --repo vercel/next.js
 ```
 
 #### Review local branch changes vs upstream
 
 ```bash
-prlens changes
+node dist/index.js changes
 ```
 
 #### Ask a question about the repo
 
 ```bash
-prlens ask "Where is config loaded?"
+node dist/index.js ask "Where is config loaded?"
 ```
 
 #### Print version
 
 ```bash
-prlens version
+node dist/index.js version
 ```
 
 ### Optional: run before every push
@@ -119,32 +100,32 @@ prlens version
 Inside a git repo:
 
 ```bash
-prlens install
+node dist/index.js install
 ```
 
 That installs a `pre-push` hook that runs `prlens changes` before pushing.
 
 ## Commands
 
-### `prlens review <file>`
+### `review <file>`
 
 Review a local file and print a structured report.
 
 ```bash
-prlens review src/index.ts
-prlens review src/index.ts --max-chars 8000
+node dist/index.js review src/index.ts
+node dist/index.js review src/index.ts --max-chars 8000
 ```
 
-### `prlens pr <number> --repo <owner/repo>`
+### `pr <number> --repo <owner/repo>`
 
 Fetch the PR diff from GitHub, minimize it, then generate a structured AI review.
 
 ```bash
-prlens pr 123 --repo vercel/next.js
-prlens pr 123 --repo owner/repo --max-chars 8000
+node dist/index.js pr 123 --repo vercel/next.js
+node dist/index.js pr 123 --repo owner/repo --max-chars 8000
 ```
 
-### `prlens changes`
+### `changes`
 
 Review your local changes vs the configured upstream branch.
 
@@ -157,8 +138,8 @@ git diff --unified=0 @{u}...HEAD
 Examples:
 
 ```bash
-prlens changes
-prlens changes --max-chars 8000
+node dist/index.js changes
+node dist/index.js changes --max-chars 8000
 ```
 
 If you don’t have an upstream branch set, configure one (example):
@@ -167,28 +148,28 @@ If you don’t have an upstream branch set, configure one (example):
 git branch --set-upstream-to origin/main
 ```
 
-### `prlens ask "<question>"`
+### `ask "<question>"`
 
 Ask a question about your local codebase (PRLens scans a limited subset of files for context).
 
 ```bash
-prlens ask "How does auth work?"
-prlens ask "Where is the database client created?"
+node dist/index.js ask "How does auth work?"
+node dist/index.js ask "Where is the database client created?"
 ```
 
-### `prlens install` (optional)
+### `install` (optional)
 
 Installs a git `pre-push` hook that runs `prlens changes` before pushing.
 
 ```bash
-prlens install
-prlens install --force
+node dist/index.js install
+node dist/index.js install --force
 ```
 
 This writes `.git/hooks/pre-push` to run:
 
 ```bash
-npx -y prlens changes
+node ./dist/index.js changes
 ```
 
 ## Configuration

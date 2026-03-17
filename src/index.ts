@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Command } from "commander";
+import { Command, CommanderError } from "commander";
 import { createRequire } from "node:module";
 import { loadEnv } from "./config/env.js";
 import { loadConfig } from "./config/prlensConfig.js";
@@ -52,6 +52,12 @@ program.showHelpAfterError(true);
 program.showSuggestionAfterError(true);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
+  // Commander uses exceptions for help output when exitOverride() is enabled.
+  // Treat `--help`/help output as success.
+  if (err instanceof CommanderError && (err.code === "commander.helpDisplayed" || err.message === "(outputHelp)")) {
+    process.exitCode = 0;
+    return;
+  }
   printUserFacingError(err);
   // Still log the raw message for users piping logs via PRLENS_LOG_LEVEL=debug.
   logger.debug(err instanceof Error ? err.stack ?? err.message : String(err));
