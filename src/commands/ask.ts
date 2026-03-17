@@ -9,6 +9,10 @@ export function registerAskCommand(program: Command): void {
     .command("ask")
     .argument("<question>", "Question to ask about the codebase")
     .description("Ask a question about the local codebase (reads a limited set of files for context).")
+    .addHelpText(
+      "after",
+      "\nExamples:\n  prlens ask \"How does auth work?\"\n  prlens ask \"Where is the database client created?\"\n"
+    )
     .action(async (question: string) => {
       logger.info(`Question: ${chalk.bold(question)}`);
       const spinner = createSpinner("Thinking...").start();
