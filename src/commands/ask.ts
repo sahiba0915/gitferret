@@ -8,15 +8,20 @@ export function registerAskCommand(program: Command): void {
   program
     .command("ask")
     .argument("<question>", "Question to ask about the codebase")
-    .description("Ask a question (placeholder: echoes the question).")
+    .description("Ask a question about the local codebase (reads a limited set of files for context).")
     .action(async (question: string) => {
-      logger.info(`Question received: ${chalk.bold(question)}`);
+      logger.info(`Question: ${chalk.bold(question)}`);
       const spinner = createSpinner("Thinking...").start();
 
       try {
-        const answer = await askQuestion(question);
+        const result = await askQuestion(question);
         spinner.succeed(chalk.green("Answer ready"));
-        logger.info(answer);
+        logger.info(result.answer.trim());
+        if (result.includedFiles.length) {
+          logger.info("");
+          logger.info(chalk.dim(`Context files (${result.includedFiles.length}):`));
+          for (const f of result.includedFiles) logger.info(chalk.dim(`- ${f}`));
+        }
       } catch (err: unknown) {
         spinner.fail(chalk.red("Ask failed"));
         logger.error(err instanceof Error ? err.message : String(err));
