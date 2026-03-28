@@ -15,7 +15,7 @@ export function registerReviewCommand(program: Command): void {
     .description("Review a local file with AI and print a structured report.")
     .addHelpText(
       "after",
-      "\nExamples:\n  prlens review README.md\n  prlens review src/index.ts --max-chars 8000\n"
+      "\nExamples:\n  gitferret review README.md\n  gitferret review src/index.ts --max-chars 8000\n"
     )
     .action(async (file: string, opts: { maxChars?: number }) => {
       logger.info(`Review requested for ${chalk.bold(file)}`);
@@ -37,7 +37,7 @@ export function registerReviewCommand(program: Command): void {
         spinner.fail(chalk.red("Review failed"));
         if (err instanceof ReviewError) {
           logger.error(err.message);
-          if (process.env.PRLENS_LOG_LEVEL === "debug" && err.details) {
+          if (process.env.GITFERRET_LOG_LEVEL === "debug" && err.details) {
             logger.debug(chalk.gray(err.details));
           }
         } else {

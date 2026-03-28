@@ -2,7 +2,7 @@
 import { Command, CommanderError } from "commander";
 import { createRequire } from "node:module";
 import { loadEnv } from "./config/env.js";
-import { loadConfig } from "./config/prlensConfig.js";
+import { loadConfig } from "./config/gitferretConfig.js";
 import { registerAskCommand } from "./commands/ask.js";
 import { registerPrCommand } from "./commands/pr.js";
 import { registerReviewCommand } from "./commands/review.js";
@@ -19,12 +19,12 @@ const require = createRequire(import.meta.url);
 const pkg = require("../package.json") as { version?: string };
 
 const program = new Command()
-  .name("prlens")
-  .description("PRLens - review diffs, inspect PRs, and ask questions about your codebase.")
+  .name("gitferret")
+  .description("Gitferret - review diffs, inspect PRs, and ask questions about your codebase.")
   .version(pkg.version ?? "0.0.0")
   .addHelpText(
     "after",
-    "\nExamples:\n  prlens review README.md\n  prlens pr 123 --repo vercel/next.js\n  prlens changes\n  prlens ask \"Where is config loaded?\"\n  prlens version\n"
+    "\nExamples:\n  gitferret review README.md\n  gitferret pr 123 --repo vercel/next.js\n  gitferret changes\n  gitferret ask \"Where is config loaded?\"\n  gitferret version\n"
   );
 
 registerReviewCommand(program);
@@ -59,7 +59,7 @@ program.parseAsync(process.argv).catch((err: unknown) => {
     return;
   }
   printUserFacingError(err);
-  // Still log the raw message for users piping logs via PRLENS_LOG_LEVEL=debug.
+  // Still log the raw message for users piping logs via GITFERRET_LOG_LEVEL=debug.
   logger.debug(err instanceof Error ? err.stack ?? err.message : String(err));
   process.exitCode = 1;
 });

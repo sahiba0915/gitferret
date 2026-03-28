@@ -18,10 +18,10 @@ async function fileExists(p: string): Promise<boolean> {
 function hookScript(): string {
   // A Node-based hook is the most portable approach across macOS/Linux/Windows git-bash.
   // In "dev-only" usage (running from a cloned repo), we prefer `node ./dist/index.js changes`.
-  // If `dist/index.js` doesn't exist, we fall back to `npx prlens changes` for published installs.
+  // If `dist/index.js` doesn't exist, we fall back to `npx gitferret changes` for published installs.
   return [
     "#!/usr/bin/env node",
-    "/* PRLens pre-push hook (generated). */",
+    "/* Gitferret pre-push hook (generated). */",
     "import { spawnSync } from 'node:child_process';",
     "import { existsSync } from 'node:fs';",
     "",
@@ -33,7 +33,7 @@ function hookScript(): string {
     "  r = spawnSync(process.execPath, [localEntry, 'changes'], { stdio: 'inherit' });",
     "} else {",
     "  const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';",
-    "  const args = ['-y', 'prlens', 'changes'];",
+    "  const args = ['-y', 'gitferret', 'changes'];",
     "  r = spawnSync(cmd, args, { stdio: 'inherit' });",
     "}",
     "process.exitCode = r.status ?? 1;",
@@ -44,11 +44,11 @@ function hookScript(): string {
 export function registerInstallCommand(program: Command): void {
   program
     .command("install")
-    .description("Install a git pre-push hook that runs `prlens changes` before pushing.")
+    .description("Install a git pre-push hook that runs `gitferret changes` before pushing.")
     .option("--force", "Overwrite an existing pre-push hook")
     .addHelpText(
       "after",
-      "\nExamples:\n  prlens install\n  prlens install --force\n\nWhat it does:\n  - Writes `.git/hooks/pre-push` to run `node ./dist/index.js changes` when available.\n  - Falls back to `npx -y prlens changes` if `dist/` isn't present.\n"
+      "\nExamples:\n  gitferret install\n  gitferret install --force\n\nWhat it does:\n  - Writes `.git/hooks/pre-push` to run `node ./dist/index.js changes` when available.\n  - Falls back to `npx -y gitferret changes` if `dist/` isn't present.\n"
     )
     .action(async (opts: { force?: boolean }) => {
       const spinner = createSpinner("Installing git pre-push hook...").start();
@@ -61,10 +61,10 @@ export function registerInstallCommand(program: Command): void {
 
         if (!opts.force && (await fileExists(hookPath))) {
           const existing = await readFile(hookPath, "utf8").catch(() => "");
-          const already = existing.includes("PRLens pre-push hook") || existing.includes("prlens changes");
+          const already = existing.includes("Gitferret pre-push hook") || existing.includes("gitferret changes");
           spinner.fail(chalk.yellow("Hook already exists"));
           if (already) {
-            console.log(chalk.dim(`Existing hook already looks like PRLens. If you want to rewrite it, run: prlens install --force`));
+            console.log(chalk.dim(`Existing hook already looks like Gitferret. If you want to rewrite it, run: gitferret install --force`));
           } else {
             console.log(chalk.dim(`A pre-push hook already exists at ${hookPath}. Use --force to overwrite.`));
           }
@@ -75,7 +75,7 @@ export function registerInstallCommand(program: Command): void {
         await writeFile(hookPath, hookScript(), { encoding: "utf8" });
         spinner.succeed(chalk.green("Installed pre-push hook"));
         console.log(chalk.dim(`Hook path: ${hookPath}`));
-        console.log(chalk.dim("Next: run `prlens changes` once to ensure your upstream branch is configured."));
+        console.log(chalk.dim("Next: run `gitferret changes` once to ensure your upstream branch is configured."));
       } catch (err: unknown) {
         spinner.fail(chalk.red("Install failed"));
         if (err instanceof CliError) throw err;

@@ -1,4 +1,4 @@
-import { focusDirectiveForPrompt } from "../config/prlensConfig.js";
+import { focusDirectiveForPrompt } from "../config/gitferretConfig.js";
 
 type OpenAIChatCompletionResponse = {
   choices?: Array<{ message?: { content?: string | null } }>;
@@ -220,11 +220,11 @@ export function buildRepoQueryPrompt(context: string, question: string): string 
  * OpenAI-compatible servers (e.g. local Ollama / proxies), using env vars:
  *
  * Preferred:
- * - PRLENS_LLM_PROVIDER=openai-compatible
- * - PRLENS_LLM_BASE_URL=https://api.openai.com
- * - PRLENS_LLM_API_KEY=...
- * - PRLENS_LLM_MODEL=...
- * - PRLENS_LLM_TIMEOUT_MS=30000
+ * - GITFERRET_LLM_PROVIDER=openai-compatible
+ * - GITFERRET_LLM_BASE_URL=https://api.openai.com
+ * - GITFERRET_LLM_API_KEY=...
+ * - GITFERRET_LLM_MODEL=...
+ * - GITFERRET_LLM_TIMEOUT_MS=30000
  *
  * Back-compat (also supported):
  * - OPENAI_BASE_URL / OPENAI_API_KEY / OPENAI_MODEL / OPENAI_TIMEOUT_MS
@@ -232,7 +232,7 @@ export function buildRepoQueryPrompt(context: string, question: string): string 
 export async function analyze(prompt: string, options: AnalyzeOptions = {}): Promise<string> {
   const provider: LlmProvider =
     options.provider ??
-    (getEnvFirst("PRLENS_LLM_PROVIDER") as LlmProvider | undefined) ??
+    (getEnvFirst("GITFERRET_LLM_PROVIDER") as LlmProvider | undefined) ??
     "openai-compatible";
 
   const client = PROVIDERS[provider];
@@ -245,21 +245,21 @@ export async function analyze(prompt: string, options: AnalyzeOptions = {}): Pro
 class OpenAICompatibleClient implements LlmClient {
   private defaultBaseUrl(): string {
     return normalizeBaseUrl(
-      getEnvFirst("PRLENS_LLM_BASE_URL", "OPENAI_BASE_URL") ?? "https://api.openai.com"
+      getEnvFirst("GITFERRET_LLM_BASE_URL", "OPENAI_BASE_URL") ?? "https://api.openai.com"
     );
   }
 
   private defaultModel(): string {
-    return getEnvFirst("PRLENS_LLM_MODEL", "OPENAI_MODEL") ?? "gpt-4o-mini";
+    return getEnvFirst("GITFERRET_LLM_MODEL", "OPENAI_MODEL") ?? "gpt-4o-mini";
   }
 
   private defaultTimeoutMs(): number {
-    return parsePositiveInt(getEnvFirst("PRLENS_LLM_TIMEOUT_MS", "OPENAI_TIMEOUT_MS"), 30_000);
+    return parsePositiveInt(getEnvFirst("GITFERRET_LLM_TIMEOUT_MS", "OPENAI_TIMEOUT_MS"), 30_000);
   }
 
   private resolveApiKey(baseUrl: string, override?: string): string | undefined {
     if (override && override.trim()) return override.trim();
-    const key = getEnvFirst("PRLENS_LLM_API_KEY", "OPENAI_API_KEY");
+    const key = getEnvFirst("GITFERRET_LLM_API_KEY", "OPENAI_API_KEY");
     if (key) return key;
     // Allow local OpenAI-compatible servers that don't require a key.
     if (isLocalhostBaseUrl(baseUrl)) return "ollama";
@@ -275,7 +275,7 @@ class OpenAICompatibleClient implements LlmClient {
     if (!apiKey) {
       throw missingKeyError(
         provider,
-        "Set PRLENS_LLM_API_KEY (preferred) or OPENAI_API_KEY, or use a localhost base URL."
+        "Set GITFERRET_LLM_API_KEY (preferred) or OPENAI_API_KEY, or use a localhost base URL."
       );
     }
 
@@ -329,28 +329,28 @@ class OpenAICompatibleClient implements LlmClient {
 class GeminiClient implements LlmClient {
   private defaultBaseUrl(): string {
     return normalizeBaseUrl(
-      getEnvFirst("PRLENS_LLM_BASE_URL", "GEMINI_BASE_URL") ??
+      getEnvFirst("GITFERRET_LLM_BASE_URL", "GEMINI_BASE_URL") ??
         "https://generativelanguage.googleapis.com"
     );
   }
 
   private defaultApiVersion(): string {
-    return getEnvFirst("PRLENS_GEMINI_API_VERSION") ?? "v1";
+    return getEnvFirst("GITFERRET_GEMINI_API_VERSION") ?? "v1";
   }
 
   private defaultModel(): string {
     // Gemini REST expects "models/<modelName>"
-    const raw = getEnvFirst("PRLENS_LLM_MODEL", "GEMINI_MODEL") ?? "gemini-2.0-flash";
+    const raw = getEnvFirst("GITFERRET_LLM_MODEL", "GEMINI_MODEL") ?? "gemini-2.0-flash";
     return raw.startsWith("models/") ? raw : `models/${raw}`;
   }
 
   private defaultTimeoutMs(): number {
-    return parsePositiveInt(getEnvFirst("PRLENS_LLM_TIMEOUT_MS", "GEMINI_TIMEOUT_MS"), 30_000);
+    return parsePositiveInt(getEnvFirst("GITFERRET_LLM_TIMEOUT_MS", "GEMINI_TIMEOUT_MS"), 30_000);
   }
 
   private resolveApiKey(override?: string): string | undefined {
     if (override && override.trim()) return override.trim();
-    return getEnvFirst("PRLENS_LLM_API_KEY", "GEMINI_API_KEY");
+    return getEnvFirst("GITFERRET_LLM_API_KEY", "GEMINI_API_KEY");
   }
 
   async analyze(prompt: string, options: AnalyzeOptions = {}): Promise<string> {
@@ -365,7 +365,7 @@ class GeminiClient implements LlmClient {
     const timeoutMs = options.timeoutMs ?? this.defaultTimeoutMs();
     const apiKey = this.resolveApiKey(options.apiKey);
     if (!apiKey) {
-      throw missingKeyError(provider, "Set PRLENS_LLM_API_KEY (preferred) or GEMINI_API_KEY.");
+      throw missingKeyError(provider, "Set GITFERRET_LLM_API_KEY (preferred) or GEMINI_API_KEY.");
     }
 
     try {
@@ -417,21 +417,21 @@ class GeminiClient implements LlmClient {
 class AnthropicClient implements LlmClient {
   private defaultBaseUrl(): string {
     return normalizeBaseUrl(
-      getEnvFirst("PRLENS_LLM_BASE_URL", "ANTHROPIC_BASE_URL") ?? "https://api.anthropic.com"
+      getEnvFirst("GITFERRET_LLM_BASE_URL", "ANTHROPIC_BASE_URL") ?? "https://api.anthropic.com"
     );
   }
 
   private defaultModel(): string {
-    return getEnvFirst("PRLENS_LLM_MODEL", "ANTHROPIC_MODEL") ?? "claude-3-5-sonnet-latest";
+    return getEnvFirst("GITFERRET_LLM_MODEL", "ANTHROPIC_MODEL") ?? "claude-3-5-sonnet-latest";
   }
 
   private defaultTimeoutMs(): number {
-    return parsePositiveInt(getEnvFirst("PRLENS_LLM_TIMEOUT_MS", "ANTHROPIC_TIMEOUT_MS"), 30_000);
+    return parsePositiveInt(getEnvFirst("GITFERRET_LLM_TIMEOUT_MS", "ANTHROPIC_TIMEOUT_MS"), 30_000);
   }
 
   private resolveApiKey(override?: string): string | undefined {
     if (override && override.trim()) return override.trim();
-    return getEnvFirst("PRLENS_LLM_API_KEY", "ANTHROPIC_API_KEY");
+    return getEnvFirst("GITFERRET_LLM_API_KEY", "ANTHROPIC_API_KEY");
   }
 
   async analyze(prompt: string, options: AnalyzeOptions = {}): Promise<string> {
@@ -441,7 +441,7 @@ class AnthropicClient implements LlmClient {
     const timeoutMs = options.timeoutMs ?? this.defaultTimeoutMs();
     const apiKey = this.resolveApiKey(options.apiKey);
     if (!apiKey) {
-      throw missingKeyError(provider, "Set PRLENS_LLM_API_KEY (preferred) or ANTHROPIC_API_KEY.");
+      throw missingKeyError(provider, "Set GITFERRET_LLM_API_KEY (preferred) or ANTHROPIC_API_KEY.");
     }
 
     try {

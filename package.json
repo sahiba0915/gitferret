@@ -1,15 +1,15 @@
 {
-  "name": "prlens",
+  "name": "gitferret",
   "version": "0.1.0",
-  "description": "PRLens - AI-powered CLI tool for reviewing pull requests and understanding codebases.",
+  "description": "Gitferret - AI-powered CLI tool for reviewing pull requests and understanding codebases.",
   "type": "module",
   "license": "MIT",
   "bin": {
-    "prlens": "dist/index.js"
+    "gitferret": "dist/index.js"
   },
   "files": [
     "dist/",
-    "prlens.config.json",
+    "gitferret.config.json",
     "README.md",
     "LICENSE"
   ],
@@ -35,4 +35,3 @@
     "node": ">=20"
   }
 }
-

@@ -15,7 +15,7 @@ export function registerPrCommand(program: Command): void {
     .description("Fetch PR diff from GitHub, extract only changed lines, and generate a structured AI review.")
     .addHelpText(
       "after",
-      "\nExamples:\n  prlens pr 123 --repo vercel/next.js\n  prlens pr 123 --repo owner/repo --max-chars 8000\n\nTips:\n  - Set `PRLENS_GITHUB_TOKEN` to avoid rate limits.\n"
+      "\nExamples:\n  gitferret pr 123 --repo vercel/next.js\n  gitferret pr 123 --repo owner/repo --max-chars 8000\n\nTips:\n  - Set `GITFERRET_GITHUB_TOKEN` to avoid rate limits.\n"
     )
     .action(async (prNumberRaw: string, opts: { repo: string; maxChars?: number }) => {
       logger.info(
@@ -51,7 +51,7 @@ export function registerPrCommand(program: Command): void {
         spinner.fail(chalk.red("PR review failed"));
         if (err instanceof PrReviewError) {
           logger.error(err.message);
-          if (process.env.PRLENS_LOG_LEVEL === "debug" && err.details) {
+          if (process.env.GITFERRET_LOG_LEVEL === "debug" && err.details) {
             logger.debug(chalk.gray(err.details));
           }
         } else {

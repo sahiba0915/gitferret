@@ -11,7 +11,7 @@ export function registerAskCommand(program: Command): void {
     .description("Ask a question about the local codebase (reads a limited set of files for context).")
     .addHelpText(
       "after",
-      "\nExamples:\n  prlens ask \"How does auth work?\"\n  prlens ask \"Where is the database client created?\"\n"
+      "\nExamples:\n  gitferret ask \"How does auth work?\"\n  gitferret ask \"Where is the database client created?\"\n"
     )
     .action(async (question: string) => {
       logger.info(`Question: ${chalk.bold(question)}`);

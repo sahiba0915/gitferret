@@ -79,11 +79,11 @@ async function fetchPrAndDiff(client: GitHubClient, repo: GitHubRepoRef, prNumbe
   } catch (err: unknown) {
     if (err instanceof GitHubApiError) {
       const missingTokenHint =
-        (err.status === 401 || err.status === 403) && !process.env.PRLENS_GITHUB_TOKEN && !process.env.GITHUB_TOKEN;
+        (err.status === 401 || err.status === 403) && !process.env.GITFERRET_GITHUB_TOKEN && !process.env.GITHUB_TOKEN;
       if (missingTokenHint) {
         throw new PrReviewError(
           "GITHUB_AUTH_MISSING",
-          "Missing GitHub token. Set PRLENS_GITHUB_TOKEN (preferred) or GITHUB_TOKEN.",
+          "Missing GitHub token. Set GITFERRET_GITHUB_TOKEN (preferred) or GITHUB_TOKEN.",
           err.details,
           err
         );

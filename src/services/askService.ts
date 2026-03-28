@@ -1,7 +1,7 @@
 import { analyze, LlmApiError } from "./ai.service.js";
 import { buildRepoContext, type RepoContextOptions } from "../utils/repoContext.js";
 import { ReviewError } from "./reviewErrors.js";
-import { focusDirectiveForPrompt } from "../config/prlensConfig.js";
+import { focusDirectiveForPrompt } from "../config/gitferretConfig.js";
 
 export type AskOptions = {
   context?: RepoContextOptions;

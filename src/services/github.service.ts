@@ -111,15 +111,15 @@ export class GitHubClient {
   private readonly token: string | undefined;
 
   constructor(options: GitHubClientOptions = {}) {
-    this.baseUrl = normalizeBaseUrl(options.baseUrl ?? getEnvFirst("PRLENS_GITHUB_BASE_URL") ?? "https://api.github.com");
-    this.timeoutMs = options.timeoutMs ?? parsePositiveInt(getEnvFirst("PRLENS_GITHUB_TIMEOUT_MS"), 20_000);
-    this.token = options.token ?? getEnvFirst("PRLENS_GITHUB_TOKEN", "GITHUB_TOKEN");
+    this.baseUrl = normalizeBaseUrl(options.baseUrl ?? getEnvFirst("GITFERRET_GITHUB_BASE_URL") ?? "https://api.github.com");
+    this.timeoutMs = options.timeoutMs ?? parsePositiveInt(getEnvFirst("GITFERRET_GITHUB_TIMEOUT_MS"), 20_000);
+    this.token = options.token ?? getEnvFirst("GITFERRET_GITHUB_TOKEN", "GITHUB_TOKEN");
   }
 
   private buildHeaders(accept: string): Record<string, string> {
     const headers: Record<string, string> = {
       Accept: accept,
-      "User-Agent": "prlens",
+      "User-Agent": "gitferret",
       "X-GitHub-Api-Version": "2022-11-28"
     };
     if (this.token) headers.Authorization = `Bearer ${this.token}`;
@@ -152,7 +152,7 @@ export class GitHubClient {
     const base = msg ?? (text ? text.slice(0, 500) : "Request failed");
     const authHint =
       res.status === 401
-        ? "Check PRLENS_GITHUB_TOKEN / GITHUB_TOKEN."
+        ? "Check GITFERRET_GITHUB_TOKEN / GITHUB_TOKEN."
         : res.status === 403
           ? "This may be rate limiting or missing permissions."
           : "";

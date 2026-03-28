@@ -15,7 +15,7 @@ export function registerChangesCommand(program: Command): void {
     .option("--max-chars <n>", "Max characters of minimized diff to send (default: 12000)", parsePositiveIntOption)
     .addHelpText(
       "after",
-      "\nExamples:\n  prlens changes\n  prlens changes --max-chars 8000\n\nNotes:\n  - Requires an upstream branch (e.g. origin/main).\n  - Uses `git diff --unified=0 @{u}...HEAD` under the hood.\n"
+      "\nExamples:\n  gitferret changes\n  gitferret changes --max-chars 8000\n\nNotes:\n  - Requires an upstream branch (e.g. origin/main).\n  - Uses `git diff --unified=0 @{u}...HEAD` under the hood.\n"
     )
     .action(async (opts: { maxChars?: number }) => {
       const spinner = createSpinner("Collecting git diff and generating review...").start();

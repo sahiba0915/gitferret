@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { logger } from "../utils/logger.js";
 
-export type PrlensConfig = {
+export type GitferretConfig = {
   /**
    * High-level areas to prioritize in AI output.
    * Treated as an ordered list (earlier = higher priority).
@@ -10,7 +10,7 @@ export type PrlensConfig = {
   focus: string[];
 };
 
-export const DEFAULT_PRLENS_CONFIG: PrlensConfig = {
+export const DEFAULT_GITFERRET_CONFIG: GitferretConfig = {
   focus: ["correctness", "security", "performance", "maintainability"]
 };
 
@@ -32,46 +32,46 @@ function normalizeStringArray(value: unknown): string[] | undefined {
   return out;
 }
 
-function parseConfigJson(jsonText: string): PrlensConfig | undefined {
+function parseConfigJson(jsonText: string): GitferretConfig | undefined {
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonText);
   } catch (err: unknown) {
-    logger.warn(`Invalid prlens.config.json (failed to parse JSON): ${err instanceof Error ? err.message : String(err)}`);
+    logger.warn(`Invalid gitferret.config.json (failed to parse JSON): ${err instanceof Error ? err.message : String(err)}`);
     return undefined;
   }
 
   if (!isObject(parsed)) {
-    logger.warn("Invalid prlens.config.json (expected a JSON object).");
+    logger.warn("Invalid gitferret.config.json (expected a JSON object).");
     return undefined;
   }
 
-  const focus = normalizeStringArray(parsed.focus) ?? DEFAULT_PRLENS_CONFIG.focus;
-  return { ...DEFAULT_PRLENS_CONFIG, focus };
+  const focus = normalizeStringArray(parsed.focus) ?? DEFAULT_GITFERRET_CONFIG.focus;
+  return { ...DEFAULT_GITFERRET_CONFIG, focus };
 }
 
-let cachedConfig: PrlensConfig | undefined;
+let cachedConfig: GitferretConfig | undefined;
 
-export async function loadConfig(cwd: string = process.cwd()): Promise<PrlensConfig> {
+export async function loadConfig(cwd: string = process.cwd()): Promise<GitferretConfig> {
   if (cachedConfig) return cachedConfig;
-  const configPath = path.join(cwd, "prlens.config.json");
+  const configPath = path.join(cwd, "gitferret.config.json");
 
   try {
     const text = await readFile(configPath, "utf8");
     const parsed = parseConfigJson(text);
-    cachedConfig = parsed ?? DEFAULT_PRLENS_CONFIG;
+    cachedConfig = parsed ?? DEFAULT_GITFERRET_CONFIG;
     logger.debug(`config loaded: ${configPath}`);
     return cachedConfig;
   } catch (err: unknown) {
     // Missing config file is normal; default config should apply silently.
     if (err instanceof Error && "code" in err && (err as { code?: string }).code === "ENOENT") {
-      cachedConfig = DEFAULT_PRLENS_CONFIG;
+      cachedConfig = DEFAULT_GITFERRET_CONFIG;
       logger.debug(`config not found, using defaults: ${configPath}`);
       return cachedConfig;
     }
-    cachedConfig = DEFAULT_PRLENS_CONFIG;
+    cachedConfig = DEFAULT_GITFERRET_CONFIG;
     logger.warn(
-      `Failed to load prlens.config.json, using defaults: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to load gitferret.config.json, using defaults: ${err instanceof Error ? err.message : String(err)}`
     );
     return cachedConfig;
   }
@@ -81,8 +81,8 @@ export async function loadConfig(cwd: string = process.cwd()): Promise<PrlensCon
  * Returns the cached config if already loaded, otherwise returns defaults.
  * Prefer calling `loadConfig()` during app startup to avoid I/O mid-command.
  */
-export function getConfig(): PrlensConfig {
-  return cachedConfig ?? DEFAULT_PRLENS_CONFIG;
+export function getConfig(): GitferretConfig {
+  return cachedConfig ?? DEFAULT_GITFERRET_CONFIG;
 }
 
 export function focusDirectiveForPrompt(defaultFocusText: string): string {
@@ -90,4 +90,3 @@ export function focusDirectiveForPrompt(defaultFocusText: string): string {
   if (!focus.length) return defaultFocusText;
   return `Focus areas (priority order): ${focus.join(", ")}.`;
 }
-
